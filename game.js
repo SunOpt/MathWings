@@ -8,6 +8,7 @@ let bullets = [];
 let level = 1;
 let speed = 1;
 let health = 5; // 初始血量
+let hits = 0; // 击中计数
 let enemyBullets = [];
 
 // 加载飞机图片
@@ -145,6 +146,8 @@ function checkCollisions() {
             // 只有在击中目标飞机时才爆炸
             planes.splice(bullet.targetIndex, 1);
             bullets.splice(bulletIndex, 1);
+            hits++;
+            updateHitsDisplay();
             showExplosion(plane.x, plane.y);
         }
     });
@@ -170,6 +173,11 @@ function drawHealthBar() {
 
     ctx.strokeStyle = 'black';
     ctx.strokeRect(x, y, barWidth, barHeight);
+}
+
+function updateHitsDisplay() {
+    const hitsDisplay = document.getElementById('hitsDisplay');
+    hitsDisplay.textContent = `击中数: ${hits}`;
 }
 
 function showCannonExplosion() {
@@ -232,6 +240,8 @@ function checkEnemyCollisions() {
             if (health <= 0) {
                 alert('游戏结束');
                 health = 5; // 重置血量
+                hits = 0; // 重置击中数
+                updateHitsDisplay();
             }
         }
     });
