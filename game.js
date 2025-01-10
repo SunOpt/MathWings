@@ -180,19 +180,6 @@ function updateHitsDisplay() {
     hitsDisplay.textContent = `击中数: ${hits}`;
 }
 
-function showCannonExplosion() {
-    const x = canvas.width / 2;
-    const y = canvas.height - 40;
-    ctx.fillStyle = 'orange';
-    ctx.beginPath();
-    ctx.arc(x, y, 30, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 短暂显示爆炸效果
-    setTimeout(() => {
-        drawCannon(); // 重新绘制防空炮以覆盖爆炸效果
-    }, 100); // 100毫秒后清除爆炸效果
-}
 
 function createEnemyBullet(plane) {
     const cannonX = canvas.width / 2;
