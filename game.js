@@ -76,9 +76,9 @@ function updateBullets() {
     bullets = bullets.filter(bullet => bullet.y > 0 && bullet.y < canvas.height && bullet.x > 0 && bullet.x < canvas.width);
 }
 
+let lastExplosionTime = 0;
+
 function drawPlanes() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     // 绘制防空炮
     drawCannon();
 
@@ -156,10 +156,34 @@ function checkCollisions() {
 }
 
 function showExplosion(x, y) {
-    ctx.fillStyle = 'orange';
+    lastExplosionTime = Date.now();
+    
+    // 绘制大爆炸效果
+    ctx.fillStyle = 'rgba(255, 165, 0, 0.8)';
     ctx.beginPath();
-    ctx.arc(x + 30, y + 30, 30, 0, Math.PI * 2);
+    ctx.arc(x + 60, y + 60, 60, 0, Math.PI * 2);
     ctx.fill();
+
+    // 绘制小爆炸效果
+    ctx.fillStyle = 'rgba(255, 69, 0, 0.6)';
+    ctx.beginPath();
+    ctx.arc(x + 60, y + 60, 40, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 绘制火花效果
+    for (let i = 0; i < 10; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const length = Math.random() * 50 + 30;
+        ctx.strokeStyle = `rgba(255, ${Math.random() * 155 + 100}, 0, ${Math.random() * 0.8 + 0.2})`;
+        ctx.lineWidth = Math.random() * 3 + 1;
+        ctx.beginPath();
+        ctx.moveTo(x + 60, y + 60);
+        ctx.lineTo(
+            x + 60 + Math.cos(angle) * length,
+            y + 60 + Math.sin(angle) * length
+        );
+        ctx.stroke();
+    }
 }
 
 function drawHealthBar() {
@@ -264,6 +288,11 @@ function endGame() {
 }
 
 function gameLoop() {
+    // 清除画布，保留爆炸效果
+    if (Date.now() - lastExplosionTime > 200) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
     updatePlanes();
     updateBullets();
     updateEnemyBullets();
