@@ -7,9 +7,11 @@ let planes = [];
 let bullets = [];
 let level = 1;
 let speed = 1;
-let health = 5; // 初始血量
+let health = 100; // 初始血量
 let hits = 0; // 击中计数
 let enemyBullets = [];
+let gameTime = 60; // 游戏时间60秒
+let gameTimer; // 游戏计时器
 
 // 加载飞机图片
 const planeImage = new Image();
@@ -17,7 +19,7 @@ planeImage.src = 'plane.png'; // 确保路径正确
 
 planeImage.onload = () => {
     setInterval(createPlane, 3000);
-    gameLoop();
+    startGame();
 };
 
 function createPlane() {
@@ -161,16 +163,20 @@ function showExplosion(x, y) {
 }
 
 function drawHealthBar() {
-    const barWidth = 100;
+    const barWidth = 200;
     const barHeight = 20;
     const x = canvas.width - barWidth - 20;
     const y = canvas.height - barHeight - 20;
+    
+    // 绘制背景
     ctx.fillStyle = 'red';
     ctx.fillRect(x, y, barWidth, barHeight);
 
+    // 绘制当前血量
     ctx.fillStyle = 'green';
-    ctx.fillRect(x, y, (barWidth / 5) * health, barHeight);
+    ctx.fillRect(x, y, barWidth * (health / 100), barHeight);
 
+    // 绘制边框
     ctx.strokeStyle = 'black';
     ctx.strokeRect(x, y, barWidth, barHeight);
 }
@@ -221,17 +227,40 @@ function checkEnemyCollisions() {
             bullet.y > cannonY - 20 &&
             bullet.y < cannonY + 20
         ) {
-            // 击中防空炮，扣除血量
-            health--;
+            // 击中防空炮，扣除10点血量
+            health = Math.max(0, health - 10);
             enemyBullets.splice(bulletIndex, 1);
             if (health <= 0) {
-                alert('游戏结束');
-                health = 5; // 重置血量
-                hits = 0; // 重置击中数
-                updateHitsDisplay();
+                endGame();
             }
         }
     });
+}
+
+function startGame() {
+    health = 100;
+    hits = 0;
+    gameTime = 60;
+    gameTimer = setInterval(updateGameTimer, 1000);
+    gameLoop();
+}
+
+function updateGameTimer() {
+    gameTime--;
+    if (gameTime <= 0) {
+        endGame();
+    }
+    // 随时间减少血量
+    health = Math.max(0, health - 1.67); // 60秒内从100降到0
+}
+
+function endGame() {
+    clearInterval(gameTimer);
+    alert('游戏结束!');
+    health = 100;
+    hits = 0;
+    gameTime = 60;
+    updateHitsDisplay();
 }
 
 function gameLoop() {
