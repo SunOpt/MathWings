@@ -60,9 +60,14 @@ function createBullet(targetX, targetY, planeIndex) {
     const angle = Math.atan2(predictedY - cannonY, predictedX - cannonX);
     cannonAngle = angle; // 更新炮管角度
     const speed = 5;
+    // 计算炮口位置
+    const barrelLength = 35; // 炮管长度
+    const barrelEndX = cannonX + Math.cos(angle) * barrelLength;
+    const barrelEndY = cannonY - 40 + Math.sin(angle) * barrelLength;
+    
     bullets.push({
-        x: cannonX,
-        y: cannonY,
+        x: barrelEndX,
+        y: barrelEndY,
         dx: Math.cos(angle) * speed,
         dy: Math.sin(angle) * speed,
         targetIndex: planeIndex // 存储目标飞机的索引
