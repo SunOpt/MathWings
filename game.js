@@ -58,6 +58,7 @@ function createBullet(targetX, targetY, planeIndex) {
     const predictedY = targetY + planes[planeIndex].dy * timeToTarget;
 
     const angle = Math.atan2(predictedY - cannonY, predictedX - cannonX);
+    cannonAngle = angle; // 更新炮管角度
     const speed = 5;
     bullets.push({
         x: cannonX,
@@ -117,23 +118,76 @@ function drawBullets() {
     });
 }
 
-function drawCannon() {
-    ctx.fillStyle = 'gray';
-    const cannonWidth = 40;
-    const cannonHeight = 20;
-    const x = (canvas.width - cannonWidth) / 2;
-    const y = canvas.height - cannonHeight - 10;
-    
-    // 绘制炮台
-    ctx.fillRect(x, y, cannonWidth, cannonHeight);
+let cannonAngle = 0; // 存储炮管角度
 
-    // 绘制炮筒
-    ctx.fillStyle = 'darkgray';
-    const barrelWidth = 10;
-    const barrelHeight = 30;
-    const barrelX = (canvas.width - barrelWidth) / 2;
-    const barrelY = y - barrelHeight;
-    ctx.fillRect(barrelX, barrelY, barrelWidth, barrelHeight);
+function drawCannon() {
+    const cannonX = canvas.width / 2;
+    const cannonY = canvas.height - 40;
+    
+    // 绘制炮台底座
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(cannonX - 50, cannonY);
+    ctx.lineTo(cannonX - 30, cannonY - 20);
+    ctx.lineTo(cannonX + 30, cannonY - 20);
+    ctx.lineTo(cannonX + 50, cannonY);
+    ctx.closePath();
+    
+    // 炮台渐变
+    const gradient = ctx.createLinearGradient(cannonX - 50, cannonY, cannonX + 50, cannonY);
+    gradient.addColorStop(0, '#555');
+    gradient.addColorStop(1, '#333');
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    
+    // 炮台阴影
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 5;
+    ctx.shadowOffsetY = 5;
+    
+    // 绘制防护板
+    ctx.beginPath();
+    ctx.moveTo(cannonX - 40, cannonY - 20);
+    ctx.lineTo(cannonX - 20, cannonY - 40);
+    ctx.lineTo(cannonX + 20, cannonY - 40);
+    ctx.lineTo(cannonX + 40, cannonY - 20);
+    ctx.closePath();
+    ctx.fillStyle = '#444';
+    ctx.fill();
+    
+    // 绘制炮管
+    ctx.save();
+    ctx.translate(cannonX, cannonY - 40);
+    
+    // 使用存储的炮管角度，调整旋转方向
+    ctx.rotate(cannonAngle + Math.PI / 2);
+    
+    // 炮管渐变
+    const barrelGradient = ctx.createLinearGradient(0, -5, 0, -35);
+    barrelGradient.addColorStop(0, '#666');
+    barrelGradient.addColorStop(1, '#444');
+    
+    // 绘制炮管主体
+    ctx.beginPath();
+    ctx.moveTo(-5, -5);
+    ctx.lineTo(5, -5);
+    ctx.lineTo(5, -35);
+    ctx.lineTo(-5, -35);
+    ctx.closePath();
+    ctx.fillStyle = barrelGradient;
+    ctx.fill();
+    
+    // 绘制炮管细节
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, -5);
+    ctx.lineTo(0, -35);
+    ctx.stroke();
+    
+    ctx.restore();
+    ctx.restore();
 }
 
 function checkCollisions() {
@@ -265,6 +319,7 @@ function startGame() {
     health = 100;
     hits = 0;
     gameTime = 60;
+    cannonAngle = - Math.PI / 2; // 初始化炮管朝上
     gameTimer = setInterval(updateGameTimer, 1000);
     gameLoop();
 }
